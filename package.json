@@ -1,0 +1,21 @@
+{
+  "name": "pr-skills-extractor",
+  "version": "1.0.0",
+  "description": "Extract knowledge from PR review comments into Claude Code Skills",
+  "main": "scripts/process-comment.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "github-actions",
+    "code-review",
+    "skills",
+    "claude",
+    "ai"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
