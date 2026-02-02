@@ -2,6 +2,8 @@
 
 Automatically extract knowledge from pull request review comments and convert them into Claude Code Skills files. This builds a growing knowledge base from experienced reviewers' feedback, categorized into anti-patterns to avoid and best practices to follow.
 
+**Now follows [Claude Skill authoring best practices](https://docs.anthropic.com/docs/en/agents-and-tools/agent-skills/authoring) for optimal AI discovery and usage.**
+
 ## Overview
 
 This GitHub Action processes PR review comments to:
@@ -10,6 +12,18 @@ This GitHub Action processes PR review comments to:
 - Generate Claude Code Skills files organized by domain (OHIF, Cornerstone3D, general)
 - Deduplicate and merge similar skills automatically
 - Build a knowledge base that improves over time
+
+### Best Practices Applied
+
+Generated skills follow Claude's authoring best practices:
+
+- **Gerund naming**: Skills use verb-ing form (e.g., `avoiding-direct-manipulation`)
+- **Third-person descriptions**: Includes both what the skill does AND when to use it
+- **Concise content**: Removes verbose explanations Claude doesn't need
+- **Progressive disclosure**: Large skills split into SKILL.md + reference files
+- **Line budget**: SKILL.md kept under 500 lines
+- **No time-sensitive info**: Dates stored as metadata, not in main content
+- **Validation feedback loop**: Built-in validator checks all best practices
 
 ## Architecture
 
@@ -180,47 +194,78 @@ export CURSOR_API_KEY=your_key_here
 node scripts/process-comment.js
 ```
 
+## Skill Validation
+
+Validate skills against best practices using the built-in validator:
+
+```bash
+# Validate all skills
+npm run validate
+
+# Validate a specific skill
+node scripts/validate-skills.js .claude/skills/ohif/anti-patterns/avoiding-direct-viewport-manipulation/SKILL.md
+```
+
+The validator checks for:
+- **Required fields**: name and description in frontmatter
+- **Name format**: lowercase, hyphens, max 64 chars, gerund form
+- **Description format**: third person, includes "when to use", max 1024 chars
+- **Content length**: warns if over 500 lines
+- **Conciseness**: flags verbose patterns
+- **Time-sensitive info**: warns about date-dependent content
+- **Reference depth**: ensures files are one level deep
+
 ## Example Skills
 
-### Anti-Pattern Skill
+### Anti-Pattern Skill (Best Practices Format)
 
 ```markdown
 ---
-name: avoid-direct-viewport-manipulation
-description: Avoid directly manipulating viewport state
-allowed-tools: Read, Grep, Glob, Write, Edit
+name: avoiding-direct-viewport-manipulation
+description: Prevents direct viewport state manipulation which causes sync issues. Use when reviewing or writing code that interacts with OHIF viewports.
 ---
 
-# Avoid Direct Viewport Manipulation
-
-## Context
-Domain: OHIF
+# Avoiding Direct Viewport Manipulation
 
 ## Instructions
-When working with viewports in OHIF, always use the viewport service instead of directly manipulating viewport state. Direct manipulation can cause synchronization issues and break the application state management.
+
+Use the viewport service instead of directly modifying viewport properties. Direct manipulation bypasses state management and causes synchronization issues.
 
 ## Anti-Pattern
-Directly accessing and modifying viewport properties bypasses the service layer and can lead to inconsistent state.
+
+Directly accessing viewport properties like `element.style` or `renderingEngineId` leads to inconsistent application state.
 
 ## Examples
 
-### ❌ Bad
+### Bad
+
 ```
 viewport.element.style.display = 'none';
 viewport.renderingEngineId = newId;
 ```
 
-### ✅ Good
+### Good
+
 ```
 viewportService.setViewportVisibility(viewport.id, false);
 viewportService.updateViewport(viewport.id, { renderingEngineId: newId });
 ```
 
-## Source
-- Extracted from PR #123 by @reviewer
-- Related file: `src/viewer/viewport.ts`
-- Date: 2024-01-15
+<!--
+Source Metadata:
+PR: #123
+Author: @reviewer
+File: src/viewer/viewport.ts
+-->
 ```
+
+**Key differences from old format:**
+- Gerund name: `avoiding-` instead of `avoid-`
+- Description includes "when to use"
+- No `allowed-tools` (not required per best practices)
+- No `## Context` section (domain in description)
+- Source info in HTML comment (not time-sensitive)
+- More concise instructions
 
 ## Troubleshooting
 

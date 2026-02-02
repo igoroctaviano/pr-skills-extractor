@@ -190,14 +190,64 @@ class SkillManager {
 
   /**
    * Normalize skill name (kebab-case, lowercase)
+   * Uses gerund form (verb + -ing) as recommended by best practices
+   * e.g., "avoid-direct-manipulation" -> "avoiding-direct-manipulation"
    */
   normalizeSkillName(name) {
-    return name
+    let normalized = name
       .toLowerCase()
       .replace(/[^\w\s-]/g, '')
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
       .replace(/^-|-$/g, '');
+
+    // Convert to gerund form for action verbs (best practice)
+    normalized = this.convertToGerundForm(normalized);
+    
+    // Enforce max 64 characters
+    if (normalized.length > 64) {
+      normalized = normalized.substring(0, 64).replace(/-$/, '');
+    }
+
+    return normalized;
+  }
+
+  /**
+   * Convert action verbs to gerund form (-ing)
+   * Best practice: gerund form clearly describes the activity
+   */
+  convertToGerundForm(name) {
+    const verbMappings = {
+      'avoid': 'avoiding',
+      'prefer': 'preferring',
+      'use': 'using',
+      'implement': 'implementing',
+      'handle': 'handling',
+      'manage': 'managing',
+      'process': 'processing',
+      'validate': 'validating',
+      'check': 'checking',
+      'test': 'testing',
+      'create': 'creating',
+      'update': 'updating',
+      'delete': 'deleting',
+      'remove': 'removing',
+      'add': 'adding',
+      'fix': 'fixing',
+      'optimize': 'optimizing',
+      'refactor': 'refactoring',
+      'extract': 'extracting',
+      'configure': 'configuring',
+      'setup': 'setting-up',
+      'initialize': 'initializing'
+    };
+
+    for (const [verb, gerund] of Object.entries(verbMappings)) {
+      if (name.startsWith(`${verb}-`)) {
+        return name.replace(`${verb}-`, `${gerund}-`);
+      }
+    }
+    return name;
   }
 
   /**

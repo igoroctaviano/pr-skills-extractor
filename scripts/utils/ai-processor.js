@@ -29,9 +29,10 @@ class AIProcessor {
 
   /**
    * Build the prompt for AI processing
+   * Follows Claude Skill authoring best practices for concise, effective skills
    */
   buildPrompt(commentBody, filePath, diffHunk, author) {
-    return `Analyze this code review comment and extract actionable knowledge:
+    return `Analyze this code review comment and extract actionable knowledge for a Claude AI Skill.
 
 Comment: "${commentBody}"
 File: ${filePath}
@@ -41,18 +42,34 @@ Code Context:
 ${diffHunk || 'No diff available'}
 \`\`\`
 
-Please categorize this comment and extract insights in the following JSON format:
+IMPORTANT GUIDELINES FOR GENERATING SKILL CONTENT:
+
+1. **Conciseness**: Claude is already very smart. Only include context Claude doesn't already have. Challenge each piece of information - does it justify its token cost?
+
+2. **Description**: Write in THIRD PERSON. Include BOTH what the skill does AND when to use it.
+   - Good: "Prevents direct viewport state manipulation. Use when modifying viewport properties or working with OHIF viewer components."
+   - Bad: "I help you avoid viewport issues" or "You should use this for viewports"
+
+3. **Skill Name**: Use gerund form (verb + -ing) for the main action:
+   - Good: "avoiding-direct-viewport-manipulation", "using-viewport-service"
+   - Bad: "avoid-viewport-manipulation", "viewport-helper"
+
+4. **Instructions**: Be specific but concise. Provide a default approach, not multiple options. Use pseudocode or examples only when necessary.
+
+5. **Examples**: Only include if they add value. Keep them minimal and focused.
+
+Return JSON in this format:
 {
   "category": "anti-pattern" | "best-practice" | "neutral",
   "confidence": 0.0-1.0,
-  "skillName": "descriptive-kebab-case-name",
-  "title": "Clear Skill Title",
-  "description": "Brief description of the skill",
-  "instructions": "Clear, actionable guidance extracted from the comment",
-  "antiPattern": "What to avoid (if category is anti-pattern)",
-  "bestPractice": "What to do (if category is best-practice)",
-  "badExample": "Example of bad code if applicable",
-  "goodExample": "Example of good code if applicable",
+  "skillName": "gerund-form-kebab-case-name",
+  "title": "Concise Skill Title",
+  "description": "Third-person description of what the skill does AND when to use it. Include key terms for discovery.",
+  "instructions": "Clear, concise actionable guidance. Assume Claude knows common patterns.",
+  "antiPattern": "What to avoid - be specific and brief (if anti-pattern)",
+  "bestPractice": "What to do - be specific and brief (if best-practice)",
+  "badExample": "Minimal bad code example (only if essential)",
+  "goodExample": "Minimal good code example (only if essential)",
   "domain": "ohif" | "cornerstone3d" | "general",
   "keywords": ["keyword1", "keyword2"]
 }
